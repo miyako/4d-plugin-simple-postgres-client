@@ -3,7 +3,7 @@
 Simple PostgreSQL client
 
 * macOS library version:
-  * `libpq-12.2` (howmbrew)
+  * `libpq-16.4` (homebrew)
 
 * Windows library version:
   * `libpq-9.6.3` (vcpkg)
