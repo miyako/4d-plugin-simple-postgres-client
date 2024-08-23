@@ -6,7 +6,7 @@ Simple PostgreSQL client
   * `libpq-16.4` (homebrew)
 
 * Windows library version:
-  * `libpq-9.6.3` (vcpkg)
+  * `libpq-16.4` (vcpkg, `[core,lz4,openssl,zlib]`)
 
 ### Syntax
 
