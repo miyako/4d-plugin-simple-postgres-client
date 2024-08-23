@@ -5,7 +5,7 @@
 
 # 4d-plugin-simple-postgres-client
 
-Simple PostgreSQL client
+Simple PostgreSQL client using libpq
 
 * macOS library version:
   * `libpq-16.4` (homebrew)
