@@ -1,22 +1,13 @@
-# 4d-plugin-simple-postgres-client-v2
+# 4d-plugin-simple-postgres-client
 
-Simple PostgreSQL client.
+Simple PostgreSQL client
 
-### Platform
+*macOS library version:
+  * `libpq-12.2` (howmbrew)
 
-| carbon | cocoa | win32 | win64 |
-|:------:|:-----:|:---------:|:---------:|
-||<img src="https://cloud.githubusercontent.com/assets/1725068/22371562/1b091f0a-e4db-11e6-8458-8653954a7cce.png" width="24" height="24" />|<img src="https://cloud.githubusercontent.com/assets/1725068/22371562/1b091f0a-e4db-11e6-8458-8653954a7cce.png" width="24" height="24" />|<img src="https://cloud.githubusercontent.com/assets/1725068/22371562/1b091f0a-e4db-11e6-8458-8653954a7cce.png" width="24" height="24" />|
-
-### Version
-
-<img width="32" height="32" src="https://user-images.githubusercontent.com/1725068/73986501-15964580-4981-11ea-9ac1-73c5cee50aae.png"> <img src="https://user-images.githubusercontent.com/1725068/73987971-db2ea780-4984-11ea-8ada-e25fb9c3cf4e.png" width="32" height="32" />
+* Windows library version:
+  * `libpq-9.6.3` (vcpkg)
 
 ### Syntax
 
 [miyako.github.io](https://miyako.github.io/2020/02/25/4d-plugin-simple-postgres-client-v2.html)
-
-### Remarks
-
-* Windows: vcpkg libpq static ``9.6.3``  
-* Mac: homebrew libpq static ``12.2``  
