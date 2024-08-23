@@ -260,7 +260,6 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         {
                             startTime = now;
                             PA_YieldAbsolute();
-                            NSLog(@"PA_YieldAbsolute");
                         }
                         
                         char *fieldName = PQfname(result, c);
