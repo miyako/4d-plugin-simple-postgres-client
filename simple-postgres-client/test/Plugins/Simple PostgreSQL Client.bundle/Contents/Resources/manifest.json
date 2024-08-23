@@ -1,0 +1,11 @@
+{
+    "name": "Simple PostgreSQL Client",
+    "id": 20000,
+    "commands": [
+        {
+            "theme": "Simple PostgreSQL Client",
+            "syntax": "PQ EXECUTE(&T;&T;&C;&L):J",
+            "threadSafe": true
+        }
+    ]
+}

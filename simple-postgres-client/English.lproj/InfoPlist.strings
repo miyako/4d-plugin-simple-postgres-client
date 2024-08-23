@@ -1,1 +1,1 @@
-/* Localized versions of Info.plist keys */CFBundleName = "Simple PostgreSQL Client";CFBundleShortVersionString = "2.2";CFBundleGetInfoString = "Simple PostgreSQL Client version 2.2, Copyright 2020 miyako.";
+/* Localized versions of Info.plist keys */CFBundleName = "Simple PostgreSQL Client";CFBundleShortVersionString = "2.3.0";CFBundleGetInfoString = "Simple PostgreSQL Client version 2.3.0, Copyright 2024 miyako.";

@@ -27,6 +27,11 @@ extern bool pg_strong_random(void *buf, size_t len);
 #define UTF32NATIVE "UTF-32LE"
 #endif
 
+/* Deprecated in 3.0.0 */
+#  ifndef OPENSSL_NO_DEPRECATED_3_0
+#   define SSL_get_peer_certificate SSL_get1_peer_certificate
+#  endif
+
 #define NDEBUG
 
 #pragma mark -
