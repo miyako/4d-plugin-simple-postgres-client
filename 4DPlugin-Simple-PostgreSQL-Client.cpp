@@ -27,9 +27,19 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
         }
 
 	}
+	catch(const std::exception &e)
+	{
+        // Surface the failure instead of swallowing it silently, so 4D callers
+        // can see that something went wrong (e.g. std::bad_alloc, vector::at, etc.)
+        PA_ObjectRef errorValue = PA_CreateObject();
+        ob_set_s(errorValue, L"errorMessage", e.what());
+        PA_ReturnObject(params, errorValue);
+	}
 	catch(...)
 	{
-
+        PA_ObjectRef errorValue = PA_CreateObject();
+        ob_set_s(errorValue, L"errorMessage", "unknown exception in PluginMain");
+        PA_ReturnObject(params, errorValue);
 	}
 }
 
@@ -64,6 +74,32 @@ void PQ_EXECUTE(PA_PluginParameters params) {
     
     bool useParams = (paramCount > 0);
     
+    // Connection metadata is meaningful whether or not the connection succeeded
+    // (e.g. errorMessage is the *only* diagnostic available on failure), so this
+    // is populated unconditionally rather than only inside the CONNECTION_OK branch.
+    ob_set_s(returnValue, L"errorMessage", PQerrorMessage(conn));
+    ob_set_s(returnValue, L"db", PQdb(conn));
+    ob_set_s(returnValue, L"user", PQuser(conn));
+    ob_set_s(returnValue, L"pass", PQpass(conn));
+    ob_set_s(returnValue, L"host", PQhost(conn));
+    //ob_set_s(returnValue, L"hostaddr", PQhostaddr(conn));
+    ob_set_s(returnValue, L"port", PQport(conn));
+    ob_set_s(returnValue, L"tty", PQtty(conn));
+    ob_set_s(returnValue, L"options", PQoptions(conn));
+    
+    ob_set_n(returnValue, L"status", PQstatus(conn));
+    ob_set_n(returnValue, L"transactionStatus", PQtransactionStatus(conn));
+    ob_set_n(returnValue, L"protocolVersion", PQprotocolVersion(conn));
+    ob_set_n(returnValue, L"socket", PQsocket(conn));
+    ob_set_n(returnValue, L"backendPID", PQbackendPID(conn));
+    ob_set_n(returnValue, L"clientEncoding", PQclientEncoding(conn));
+    ob_set_n(returnValue, L"protocolVersion", PQprotocolVersion(conn));
+    
+    ob_set_b(returnValue, L"connectionNeedsPassword", PQconnectionNeedsPassword(conn));
+    ob_set_b(returnValue, L"connectionUsedPassword", PQconnectionUsedPassword(conn));
+    ob_set_b(returnValue, L"sslInUse", PQsslInUse(conn));
+    //ob_set_b(returnValue, L"gssEncInUse", PQgssEncInUse(conn));
+    
     if(PQstatus(conn) == CONNECTION_OK) {
         
         Param2_command.copyUTF8String(&command);
@@ -81,7 +117,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                                   Param4_format.getIntValue());
         }else{
             
-            std::vector<char *> paramValues;
+            std::vector<const char *> paramValues;
             std::vector<int> paramLengths;
             std::vector<Oid> paramTypes;
             std::vector<int> paramFormats;
@@ -108,7 +144,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                         break;
                    
@@ -117,16 +153,18 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                     case eVK_Real:
                     {
                         double r = PA_GetRealVariable(v);
-                        int precision = 99;
+                        // A double carries ~17 significant decimal digits; requesting
+                        // 99 fractional digits only produces meaningless trailing noise.
+                        int precision = 17;
                         std::vector<char> buf(32 + precision);
-                        snprintf((char *)&buf[0], buf.size(), "%.*f", precision, r);
+                        snprintf((char *)&buf[0], buf.size(), "%.*g", precision, r);
                         CUTF8String u8((const uint8_t *)&buf[0]);
                         
                         paramTypes.push_back(0);
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                         break;
                         
@@ -141,7 +179,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                         break;
                         
@@ -156,7 +194,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                         break;
                         
@@ -168,7 +206,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                         break;
                         
@@ -181,54 +219,54 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                         paramFormats.push_back(0);
                         paramStringValues.push_back(u8);
                         paramLengths.push_back((int)u8.size());
-                        paramValues.push_back((char *)"");
+                        paramValues.push_back("");
                     }
                             break;
                         
                     default:
+                        // Unsupported/unknown variable kind: still push a NULL
+                        // parameter placeholder so paramValues/paramLengths/
+                        // paramTypes/paramFormats stay in lockstep with the
+                        // number of parameters libpq is told to expect (nParams
+                        // below). Without this, a single unsupported kind among
+                        // the collection would desynchronize the vector sizes
+                        // from paramCount, causing PQexecParams to read past the
+                        // end of these vectors (or dereference an empty vector
+                        // if every element were unsupported).
+                    {
+                        CUTF8String u8 = (const uint8_t *)"null";
+                        
+                        paramTypes.push_back(0);
+                        paramFormats.push_back(0);
+                        paramStringValues.push_back(u8);
+                        paramLengths.push_back((int)u8.size());
+                        paramValues.push_back("");
+                    }
                         break;
                 }
   
             }
             
             for(unsigned int i = 0; i < paramValues.size(); ++i) {
-                paramValues[i] = (char *)paramStringValues[i].c_str();
+                paramValues[i] = (const char *)paramStringValues[i].c_str();
             }
-              
+            
+            // Use the actual number of parameters assembled above rather than the
+            // original collection length, so nParams always matches the sizes of
+            // paramTypes/paramValues/paramLengths/paramFormats passed to libpq.
+            int nParams = (int)paramValues.size();
+
             result = PQexecParams(conn,
                                      (const char *)command.c_str(),
-                                     paramCount,
-                                     &paramTypes[0],
-                                     &paramValues[0],
-                                     &paramLengths[0],
-                                     &paramFormats[0],
+                                     nParams,
+                                     paramTypes.empty()  ? NULL : &paramTypes[0],
+                                     paramValues.empty() ? NULL : &paramValues[0],
+                                     paramLengths.empty()? NULL : &paramLengths[0],
+                                     paramFormats.empty()? NULL : &paramFormats[0],
                                      Param4_format.getIntValue());
         }
         
         PA_CollectionRef resultRows = PA_CreateCollection();
-
-        ob_set_s(returnValue, L"errorMessage", PQerrorMessage(conn));
-        ob_set_s(returnValue, L"db", PQdb(conn));
-        ob_set_s(returnValue, L"user", PQuser(conn));
-        ob_set_s(returnValue, L"pass", PQpass(conn));
-        ob_set_s(returnValue, L"host", PQhost(conn));
-        //ob_set_s(returnValue, L"hostaddr", PQhostaddr(conn));
-        ob_set_s(returnValue, L"port", PQport(conn));
-        ob_set_s(returnValue, L"tty", PQtty(conn));
-        ob_set_s(returnValue, L"options", PQoptions(conn));
-        
-        ob_set_n(returnValue, L"status", PQstatus(conn));
-        ob_set_n(returnValue, L"transactionStatus", PQtransactionStatus(conn));
-        ob_set_n(returnValue, L"protocolVersion", PQprotocolVersion(conn));
-        ob_set_n(returnValue, L"socket", PQsocket(conn));
-        ob_set_n(returnValue, L"backendPID", PQbackendPID(conn));
-        ob_set_n(returnValue, L"clientEncoding", PQclientEncoding(conn));
-        ob_set_n(returnValue, L"protocolVersion", PQprotocolVersion(conn));
-        
-        ob_set_b(returnValue, L"connectionNeedsPassword", PQconnectionNeedsPassword(conn));
-        ob_set_b(returnValue, L"connectionUsedPassword", PQconnectionUsedPassword(conn));
-        ob_set_b(returnValue, L"sslInUse", PQsslInUse(conn));
-        //ob_set_b(returnValue, L"gssEncInUse", PQgssEncInUse(conn));
         
         switch (PQresultStatus(result))
         {
@@ -237,6 +275,7 @@ void PQ_EXECUTE(PA_PluginParameters params) {
             case PGRES_FATAL_ERROR:
             case PGRES_NONFATAL_ERROR:
                 
+                PQclear(result);
                 break;
                 
             case PGRES_TUPLES_OK:
@@ -339,13 +378,16 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                 break;
                 
             default:
+                PQclear(result);
                 break;
         };
         
-        PQfinish(conn);
-        
     }
+
+    // PQfinish must run regardless of whether the connection succeeded;
+    // previously it only ran inside the CONNECTION_OK branch, leaking the
+    // PGconn (and its socket) on every failed connection attempt.
+    PQfinish(conn);
 
     PA_ReturnObject(params, returnValue);
 }
-
