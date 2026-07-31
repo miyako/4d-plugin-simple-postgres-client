@@ -64,7 +64,7 @@ jobs:
       # the command line rather than requiring an extra VS component install.
       - name: build x64
         shell: cmd
-        run: msbuild ${{ env.VCX_SOLUTION }} /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /m
+        run: msbuild "${{ env.VCX_SOLUTION }}" /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143 /m
 
       - name: upload windows binaries
         uses: actions/upload-artifact@v4
