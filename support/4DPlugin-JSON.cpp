@@ -169,6 +169,32 @@ void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const wchar_t *_value) {
     }
 }
 
+void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const CUTF16String *_value) {
+
+    if(obj && _value)
+    {
+        // _value is already a native UTF-16 (PA_Unichar) buffer with a known
+        // length -- do NOT route it through json_wconv/wcslen the way _key
+        // is below. json_wconv assumes its input is a genuine platform
+        // wchar_t buffer (UTF-32 on macOS), so reinterpreting a CUTF16String's
+        // UTF-16 data as wchar_t there would misread the buffer width and
+        // corrupt or over-read it. Only _key -- a real wchar_t string
+        // literal from the caller -- goes through the normal conversion.
+        PA_Variable v = PA_CreateVariable(eVK_Unistring);
+        CUTF16String ukey;
+        json_wconv(_key, &ukey);
+
+        PA_Unistring key = PA_CreateUnistring((PA_Unichar *)ukey.c_str());
+        PA_Unistring value = PA_CreateUnistring((PA_Unichar *)_value->c_str());
+
+        PA_SetStringVariable(&v, &value);
+        PA_SetObjectProperty(obj, &key, v);
+
+        PA_DisposeUnistring(&key);
+        PA_ClearVariable(&v);
+    }
+}
+
 void ob_set_o(PA_ObjectRef obj, const wchar_t *_key, PA_ObjectRef value) {
     
     if(obj)

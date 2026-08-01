@@ -71,6 +71,13 @@ void ob_set_s(PA_ObjectRef obj, const wchar_t *_key, const char *_value);
 void ob_set_s(PA_ObjectRef obj, const char *_key, const char *_value);
 
 void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const wchar_t *_value);
+// Convenience overload: every call site across the plugins that use this
+// header passes a CUTF16String (by pointer) rather than a raw wchar_t*
+// buffer -- e.g. `CUTF16String u16; ...; ob_set_a(obj, L"key", &u16);`.
+// Without this overload that fails to compile (C2664: cannot convert
+// CUTF16String* to const wchar_t*) the moment the caller's platform branch
+// actually gets built.
+void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const CUTF16String *_value);
 void ob_set_c(PA_ObjectRef obj, const wchar_t *_key, PA_CollectionRef value);
 void ob_set_o(PA_ObjectRef obj, const wchar_t *_key, PA_ObjectRef value);
 void ob_set_i(PA_ObjectRef obj, const wchar_t *_key, PA_long32 value);
