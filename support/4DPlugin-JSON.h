@@ -80,6 +80,12 @@ void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const wchar_t *_value);
 void ob_set_a(PA_ObjectRef obj, const wchar_t *_key, const CUTF16String *_value);
 void ob_set_c(PA_ObjectRef obj, const wchar_t *_key, PA_CollectionRef value);
 void ob_set_o(PA_ObjectRef obj, const wchar_t *_key, PA_ObjectRef value);
+// Convenience overload: narrow (char*) key, e.g. a column name returned by
+// a C library such as libpq's PQfname(). Without this, callers with a
+// char* key (as opposed to a wchar_t* literal) fail to compile (C2664:
+// cannot convert char* to const wchar_t*) -- same shape as the existing
+// ob_set_s(char*, char*) overload below, just for object-valued properties.
+void ob_set_o(PA_ObjectRef obj, const char *_key, PA_ObjectRef value);
 void ob_set_i(PA_ObjectRef obj, const wchar_t *_key, PA_long32 value);
 void ob_set_n(PA_ObjectRef obj, const wchar_t *_key, double value);
 void ob_set_b(PA_ObjectRef obj, const wchar_t *_key, bool value);
