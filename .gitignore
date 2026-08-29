@@ -3,3 +3,4 @@ simple-postgres-client/.vs/*
 simple-postgres-client/Objs/*
 simple-postgres-client/test/Plugins/Simple PostgreSQL Client.bundle/Contents/Windows64/Simple PostgreSQL Client.exp
 simple-postgres-client/test/Plugins/Simple PostgreSQL Client.bundle/Contents/Windows64/Simple PostgreSQL Client.lib
+build/*
