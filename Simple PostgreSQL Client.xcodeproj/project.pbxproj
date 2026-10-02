@@ -37,6 +37,7 @@
 		D1CA002024055552006FA546 /* Kerberos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1CA001F24055551006FA546 /* Kerberos.framework */; };
 		D1CA00212405585E006FA546 /* libpgcommon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1631F952405163000A9194C /* libpgcommon.a */; };
 		D1CA002624055941006FA546 /* libpgport.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1631F912405163000A9194C /* libpgport.a */; };
+		12EB59B2264C2BAB1937E325 /* constants.xlf in CopyFiles */ = {isa = PBXBuildFile; fileRef = D14D10DD1A03A8A5008B3411 /* constants.xlf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +48,7 @@
 			dstSubfolderSpec = 7;
 			files = (
 				D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */,
+				12EB59B2264C2BAB1937E325 /* constants.xlf in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
