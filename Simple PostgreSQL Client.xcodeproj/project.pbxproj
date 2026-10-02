@@ -418,7 +418,7 @@
 				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -473,7 +473,7 @@
 				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -526,7 +526,7 @@
 				);
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -593,7 +593,7 @@
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
 				SYMROOT = "$(SRCROOT)/test/Plugins";
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				CURRENT_PROJECT_VERSION = 2.3.5;
 			};
 			name = Development;
@@ -645,7 +645,7 @@
 				OBJROOT = "$(SRCROOT)/build";
 				SDKROOT = macosx;
 				SYMROOT = "$(SRCROOT)/test/Plugins";
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				CURRENT_PROJECT_VERSION = 2.3.5;
 			};
 			name = Deployment;
@@ -696,7 +696,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				SDKROOT = macosx;
 				SYMROOT = "$(SRCROOT)/test/Plugins";
-				MARKETING_VERSION = 2.3.6;
+				MARKETING_VERSION = 2.3.7;
 				CURRENT_PROJECT_VERSION = 2.3.5;
 			};
 			name = Default;
