@@ -127,8 +127,10 @@ void PQ_EXECUTE(PA_PluginParameters params) {
             for(unsigned int i = 0; i < paramCount; ++i) {
                 
                 PA_Variable v = PA_GetCollectionElement(Param3_params, i);
+                // the element is an owned copy; on error it is left uninitialised and must be neither read nor cleared
+                PA_ErrorCode err = PA_GetLastError();
                 
-                PA_VariableKind kind = PA_GetVariableKind(v);
+                PA_VariableKind kind = (err == eER_NoErr) ? PA_GetVariableKind(v) : eVK_Undefined;
                 
                 switch (kind) {
                     case eVK_Unistring:
@@ -244,6 +246,8 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                     }
                         break;
                 }
+                
+                if(err == eER_NoErr) PA_ClearVariable(&v);
   
             }
             
@@ -266,8 +270,6 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                                      Param4_format.getIntValue());
         }
         
-        PA_CollectionRef resultRows = PA_CreateCollection();
-        
         switch (PQresultStatus(result))
         {
             case PGRES_EMPTY_QUERY:
@@ -281,6 +283,9 @@ void PQ_EXECUTE(PA_PluginParameters params) {
             case PGRES_TUPLES_OK:
             case PGRES_SINGLE_TUPLE:
             {
+                // created here so that it is only allocated when it is handed to returnValue below
+                PA_CollectionRef resultRows = PA_CreateCollection();
+                
                 int countRows = PQntuples(result);
                 int countFields = PQnfields(result);
                 
@@ -364,6 +369,8 @@ void PQ_EXECUTE(PA_PluginParameters params) {
                     PA_Variable v = PA_CreateVariable(eVK_Object);
                     PA_SetObjectVariable(&v, resultRow);
                     PA_SetCollectionElement(resultRows, r, v);
+                    // PA_SetCollectionElement copies; release this reference to resultRow
+                    PA_ClearVariable(&v);
                     
                 }/* r */
                 
